@@ -8,7 +8,42 @@ GPT Feeder is a command-line application that scans the entire codebase, and pro
 
 ## Installation
 
-...
+### Using Cargo
+
+Ensure you have `cargo` installed. Then, run the following command:
+
+```bash
+# Install the application
+cargo install gpt-feeder
+```
+
+### Using Homebrew
+
+Ensure you have `brew` installed. Then, run the following command:
+
+```bash
+brew install gpt-feeder
+```
+
+## Usage
+
+Ensure you have `gpt-feeder` installed. Then, run the following command:
+
+```bash
+# Navigate to the directory you want to scan
+cd <directory>
+
+# Run the application with the file extensions you want included
+gpt-feeder --include "*.rs,*.md"
+
+# If you want to output the result to a file, use the `--out` flag
+gpt-feeder --include "*.rs,*.md" --out "output.txt"
+
+# Print help
+gpt-feeder --help
+```
+
+You can now paste this string into ChatGPT-4, and generate code based on the context of your code base. 🚀
 
 ## Final Notes
 
