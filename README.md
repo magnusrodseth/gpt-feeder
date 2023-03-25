@@ -17,14 +17,6 @@ Ensure you have `cargo` installed. Then, run the following command:
 cargo install gpt-feeder
 ```
 
-### Using Homebrew
-
-Ensure you have `brew` installed. Then, run the following command:
-
-```bash
-brew install gpt-feeder
-```
-
 ## Usage
 
 Ensure you have `gpt-feeder` installed. Then, run the following command:
