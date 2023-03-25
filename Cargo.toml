@@ -1,0 +1,12 @@
+[package]
+edition = "2021"
+name = "gpt-feeder"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.70"
+clap = { version = "4.1.13", features = ["derive"] }
+glob = "0.3.1"
+walkdir = "2.3.3"
