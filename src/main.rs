@@ -21,12 +21,6 @@ struct Args {
     #[arg(short, long)]
     include: String,
 
-    /// A comma-separated list of patterns to exclude from the scan. If not present, no filetypes are excluded.
-    /// This is a glob pattern, or a list of glob patterns.
-    /// Example: `*.rs`, `*.rs,*.ts`
-    #[arg(short, long)]
-    exclude: Option<String>,
-
     /// A boolean flag for whether to include hidden files.
     /// If not present, hidden files are not included.
     #[arg(long, default_value = "false")]
@@ -40,29 +34,26 @@ fn is_hidden_file(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
+/// Parses and cleans up the include patterns.
+fn includes(includes: String) -> Vec<Result<glob::Paths, glob::PatternError>> {
+    includes
+        .split(',')
+        .collect::<Vec<_>>()
+        .iter()
+        // Add `**/` to the beginning of each pattern, so that it matches
+        // files in subdirectories.
+        .map(|s| format!("**/{}", s))
+        .collect::<Vec<_>>()
+        .iter()
+        .map(|include| glob(include))
+        .collect::<Vec<_>>()
+}
+
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-
-    let includes = args
-        .include
-        .split(',')
-        .collect::<Vec<_>>()
-        .iter()
-        .map(|include| glob(include))
-        .collect::<Vec<_>>();
-
-    let excludes = args
-        .exclude
-        .unwrap_or_default()
-        .split(',')
-        .collect::<Vec<_>>()
-        .iter()
-        .map(|include| glob(include))
-        .collect::<Vec<_>>();
-
     let mut output = String::new();
 
-    for include in includes {
+    for include in includes(args.include) {
         for entry in include? {
             let entry = entry?;
 
@@ -78,7 +69,6 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    // Output to file or stdout
     if let Some(out) = args.out {
         std::fs::write(out, output)?;
     } else {
