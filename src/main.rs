@@ -1,13 +1,10 @@
 extern crate glob;
 
-use std::{
-    io::{self, Write},
-    path::Path,
-};
+use std::path::Path;
 
 use clap::Parser;
 use glob::glob;
-use walkdir::WalkDir;
+use std::io::Write;
 
 /// A command-line application that scans the entire codebase,
 /// and produces one string consisting of all filenames and file contents.
@@ -18,22 +15,22 @@ struct Args {
     #[arg(short, long)]
     out: Option<String>,
 
-    /// The pattern to include in the scan.
-    /// This is a glob pattern.
-    /// Example: `*.rs`
+    /// A comma-separated list of patterns to include in the scan.
+    /// This is a glob pattern, or a list of glob patterns.
+    /// Example: `*.rs`, `*.rs,*.ts`
     #[arg(short, long)]
     include: String,
 
-    /// The pattern to exclude from the scan. If not present, no filetypes are excluded.
-    /// This is a glob pattern.
-    /// Example: `*.rs`
+    /// A comma-separated list of patterns to exclude from the scan. If not present, no filetypes are excluded.
+    /// This is a glob pattern, or a list of glob patterns.
+    /// Example: `*.rs`, `*.rs,*.ts`
     #[arg(short, long)]
     exclude: Option<String>,
 
     /// A boolean flag for whether to include hidden files.
     /// If not present, hidden files are not included.
     #[arg(long, default_value = "false")]
-    hidden_files: bool,
+    hidden_files_included: bool,
 }
 
 fn is_hidden_file(path: &Path) -> bool {
@@ -45,47 +42,47 @@ fn is_hidden_file(path: &Path) -> bool {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    let include_regex = &format!("r\"{}\"", args.include)[..];
-    // TODO: Extract exclude_regex here
-    println!("include_regex: {}", include_regex);
 
-    // Recursively walk the current directory (including subdirectories)
-    for entry in WalkDir::new(".") {
-        let entry = entry?;
-        let name = entry.path().display();
+    let includes = args
+        .include
+        .split(',')
+        .collect::<Vec<_>>()
+        .iter()
+        .map(|include| glob(include))
+        .collect::<Vec<_>>();
 
-        if entry.file_type().is_dir() {
-            continue;
-        }
+    let excludes = args
+        .exclude
+        .unwrap_or_default()
+        .split(',')
+        .collect::<Vec<_>>()
+        .iter()
+        .map(|include| glob(include))
+        .collect::<Vec<_>>();
 
-        // If the file fulfills the include glob pattern, and does not fulfill the exclude pattern,
-        // then we include it in the output.
-        if glo
+    let mut output = String::new();
 
-        if let Some(exclude_pattern) = &args.exclude {
-            let exclude_regex = &format!("r\"{}\"", exclude_pattern)[..];
-            if regex::Regex::new(exclude_regex)?.is_match(&name.to_string()) {
+    for include in includes {
+        for entry in include? {
+            let entry = entry?;
+
+            if !args.hidden_files_included && is_hidden_file(&entry) {
                 continue;
             }
+
+            let filename = entry.display().to_string();
+            let contents = std::fs::read_to_string(&entry)?;
+            let formatted = format!("`{}`\n\n```\n{}\n```\n\n", filename, contents);
+
+            output.push_str(&formatted);
         }
+    }
 
-        // If the file is hidden, and we don't want to include hidden files, skip it.
-        if !args.hidden_files && is_hidden_file(entry.path()) {
-            continue;
-        }
-
-        // Read content of file
-        let content = std::fs::read_to_string(entry.path()).unwrap_or_default();
-
-        // Print filename and content
-        let output = format!("`{}`\n\n```\n{}```", name, content);
-        println!("{}", output);
-
-        // Print to stdout or to file
-        match &args.out {
-            Some(out) => std::fs::write(out, output)?,
-            None => io::stdout().write_all(output.as_bytes())?,
-        }
+    // Output to file or stdout
+    if let Some(out) = args.out {
+        std::fs::write(out, output)?;
+    } else {
+        writeln!(std::io::stdout(), "{}", output)?;
     }
 
     Ok(())
