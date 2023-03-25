@@ -7,7 +7,7 @@ use glob::glob;
 use std::io::Write;
 
 /// A command-line application that scans the entire codebase,
-/// and produces one string consisting of all filenames and file contents.
+/// and produces one string consisting of all filenames and file contents that you want included
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -63,7 +63,8 @@ fn main() -> anyhow::Result<()> {
 
             let filename = entry.display().to_string();
             let contents = std::fs::read_to_string(&entry)?;
-            let formatted = format!("`{}`\n\n```\n{}\n```\n\n", filename, contents);
+            let extension = entry.extension().and_then(|s| s.to_str()).unwrap_or("");
+            let formatted = format!("`{}`\n\n```{}\n{}\n```\n\n", filename, extension, contents);
 
             output.push_str(&formatted);
         }
