@@ -19,7 +19,7 @@ cargo install gpt-feeder
 
 ## Usage
 
-Ensure you have `gpt-feeder` installed. Then, run the following command:
+Ensure you have `gpt-feeder` installed. Add all ignored file and directory patterns to `.feedignore`, just like you would with a `.gitignore`. Then, run the following commands:
 
 ```bash
 # Navigate to the directory you want to scan

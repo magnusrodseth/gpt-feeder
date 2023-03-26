@@ -3,7 +3,7 @@ extern crate glob;
 use std::path::Path;
 
 use clap::Parser;
-use glob::glob;
+use glob::{glob, Pattern};
 use std::io::Write;
 
 /// A command-line application that scans the entire codebase,
@@ -59,11 +59,36 @@ fn includes(includes: String) -> Vec<Result<glob::Paths, glob::PatternError>> {
         .collect::<Vec<_>>()
 }
 
+/// Reads the `.feedignore` file, and parses the patterns.
+///
+/// This file acts much like a `.gitignore` file, using glob patterns to ignore files and directories.
+fn feedignore() -> Vec<Pattern> {
+    let feedignore = std::fs::read_to_string(".feedignore").unwrap_or_default();
+
+    feedignore
+        .lines()
+        .collect::<Vec<_>>()
+        .iter()
+        .map(|s| {
+            if std::path::Path::new(s).is_dir() {
+                format!("**/{}*", s)
+            } else {
+                format!("**/{}", s)
+            }
+        })
+        .collect::<Vec<_>>()
+        .iter()
+        .map(|include| Pattern::new(include).expect("Invalid pattern in `.feedignore`"))
+        .collect::<Vec<_>>()
+}
+
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let mut output = String::new();
     let includes = includes(args.include);
+    let feedignore = feedignore();
 
+    // Read file called `.feedignore` and ignore those files
     for include in includes {
         for entry in include? {
             let entry = entry?;
@@ -73,6 +98,13 @@ fn main() -> anyhow::Result<()> {
             }
 
             if !args.hidden_files_included && is_hidden_file(&entry) {
+                continue;
+            }
+
+            if feedignore
+                .iter()
+                .any(|pattern| pattern.matches_path(&entry))
+            {
                 continue;
             }
 
