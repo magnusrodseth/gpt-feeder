@@ -65,6 +65,10 @@ fn includes(includes: String) -> Vec<Result<glob::Paths, glob::PatternError>> {
 fn feedignore() -> Vec<Pattern> {
     let feedignore = std::fs::read_to_string(".feedignore").unwrap_or_default();
 
+    if feedignore.is_empty() {
+        return vec![];
+    }
+
     feedignore
         .lines()
         .collect::<Vec<_>>()
@@ -88,7 +92,6 @@ fn main() -> anyhow::Result<()> {
     let includes = includes(args.include);
     let feedignore = feedignore();
 
-    // Read file called `.feedignore` and ignore those files
     for include in includes {
         for entry in include? {
             let entry = entry?;
@@ -127,4 +130,59 @@ fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_cmd::Command;
+
+    const TEST_FILENAME: &str = "out.test";
+
+    #[test]
+    fn test_is_hidden_file() {
+        assert!(is_hidden_file(Path::new(".git")));
+        assert!(is_hidden_file(Path::new("src/.git")));
+        assert!(is_hidden_file(Path::new("src/.git/")));
+        assert!(is_hidden_file(Path::new("src/.git/README.md")));
+        assert!(is_hidden_file(Path::new("src/.git/README.md/")));
+        assert!(is_hidden_file(Path::new(".gitignore")));
+
+        assert!(!is_hidden_file(Path::new("src/README.md")));
+        assert!(!is_hidden_file(Path::new("src/README.md/")));
+    }
+
+    #[test]
+    fn test_includes() {
+        let actual = includes("*.rs".to_string());
+        assert_eq!(actual.len(), 1);
+        assert!(actual[0].is_ok());
+
+        let actual = includes("*.rs,*.ts".to_string());
+        assert_eq!(actual.len(), 2);
+        assert!(actual[0].is_ok());
+        assert!(actual[1].is_ok());
+    }
+
+    #[test]
+    fn can_run_binary() {
+        let mut cmd = Command::cargo_bin("gpt-feeder").expect("Failed to run binary");
+        cmd.arg("--include").arg("*.rs");
+        cmd.assert().success();
+    }
+
+    #[test]
+    fn can_create_output_file() {
+        let mut cmd = Command::cargo_bin("gpt-feeder").expect("Failed to run binary");
+        cmd.arg("--include").arg("*.rs");
+        cmd.arg("--out").arg(TEST_FILENAME);
+        cmd.assert().success();
+        assert!(std::path::Path::new(TEST_FILENAME).exists());
+        let is_empty = std::fs::read_to_string(TEST_FILENAME)
+            .expect("Failed to read test file")
+            .is_empty();
+        assert!(!is_empty);
+
+        std::fs::remove_file(TEST_FILENAME).expect("Failed to delete test file");
+    }
 }
