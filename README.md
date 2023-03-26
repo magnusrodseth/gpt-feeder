@@ -37,6 +37,10 @@ gpt-feeder --help
 
 You can now paste this string into ChatGPT-4, and generate code based on the context of your code base. 🚀
 
+### Example
+
+![Demo](/static/demo.png)
+
 ## Final Notes
 
 For more information on how to contribute and run the application, see [CONTRIBUTING.md](CONTRIBUTING.md).
