@@ -27,11 +27,21 @@ struct Args {
     hidden_files_included: bool,
 }
 
+/// Determines if a file is categorized as hidden.
+///
+/// If the file is in a directory that starts with a dot, it's hidden.
+/// If file starts with a dot, it's hidden.
 fn is_hidden_file(path: &Path) -> bool {
-    path.file_name()
-        .and_then(|s| s.to_str())
-        .map(|s| s.starts_with('.'))
-        .unwrap_or(false)
+    path.components().any(|component| match component {
+        std::path::Component::Normal(name) => {
+            let name = name
+                .to_str()
+                .unwrap_or_else(|| panic!("Invalid path: {:?}", path));
+
+            name.starts_with('.')
+        }
+        _ => false,
+    })
 }
 
 /// Parses and cleans up the include patterns.

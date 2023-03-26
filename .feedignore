@@ -1,0 +1,4 @@
+*.lock
+target/
+.git
+*.txt
