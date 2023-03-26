@@ -17,7 +17,6 @@ jobs:
         with:
           toolchain: stable
           override: true
-          dry-run: true
       - uses: katyo/publish-crates@v2
         with:
           registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
