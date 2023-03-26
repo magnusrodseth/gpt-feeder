@@ -52,17 +52,25 @@ fn includes(includes: String) -> Vec<Result<glob::Paths, glob::PatternError>> {
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     let mut output = String::new();
+    let includes = includes(args.include);
 
-    for include in includes(args.include) {
+    for include in includes {
         for entry in include? {
             let entry = entry?;
+
+            if entry.is_dir() {
+                continue;
+            }
 
             if !args.hidden_files_included && is_hidden_file(&entry) {
                 continue;
             }
 
             let filename = entry.display().to_string();
-            let contents = std::fs::read_to_string(&entry)?;
+            let contents = match std::fs::read_to_string(&entry) {
+                Ok(contents) => contents,
+                Err(_) => continue,
+            };
             let extension = entry.extension().and_then(|s| s.to_str()).unwrap_or("");
             let formatted = format!("`{}`\n\n```{}\n{}\n```\n\n", filename, extension, contents);
 
