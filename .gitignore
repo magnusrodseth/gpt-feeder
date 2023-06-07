@@ -1,3 +1,4 @@
 /target
 .feedignore
 *.txt
+.DS_Store

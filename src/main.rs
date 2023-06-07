@@ -1,5 +1,6 @@
 extern crate glob;
 
+use arboard::Clipboard;
 use std::path::Path;
 
 use clap::Parser;
@@ -25,6 +26,10 @@ struct Args {
     /// If not present, hidden files are not included.
     #[arg(long, default_value = "false")]
     hidden_files_included: bool,
+
+    /// A boolean flag for whether to copy the generated content to the clipboard.
+    #[arg(long, default_value = "true")]
+    copy: bool,
 }
 
 /// Determines if a file is categorized as hidden.
@@ -124,9 +129,16 @@ fn main() -> anyhow::Result<()> {
     }
 
     if let Some(out) = args.out {
-        std::fs::write(out, output)?;
+        std::fs::write(out, &output)?;
     } else {
         writeln!(std::io::stdout(), "{}", output)?;
+    }
+
+    if args.copy {
+        let mut clipboard = Clipboard::new().expect("Failed to initialize clipboard");
+        clipboard
+            .set_text(&output)
+            .expect("Failed to copy to clipboard");
     }
 
     Ok(())
