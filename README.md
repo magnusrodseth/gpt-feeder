@@ -35,6 +35,8 @@ gpt-feeder --include "*.rs,*.md" --out "output.txt"
 gpt-feeder --help
 ```
 
+Note that `gpt-feeder` automatically copies the content to your clipboard.
+
 You can now paste this string into ChatGPT-4, and generate code based on the context of your code base. 🚀
 
 ### Example
