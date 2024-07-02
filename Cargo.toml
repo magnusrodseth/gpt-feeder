@@ -12,8 +12,9 @@ version = "1.0.1"
 [dependencies]
 anyhow = "1.0.70"
 arboard = "3.2.0"
-clap = { version = "4.1.13", features = ["derive"] }
 glob = "0.3.1"
 
 [dev-dependencies]
 assert_cmd = "2.0.10"
+tempfile = "3.2"
+predicates = "3.1.0"
