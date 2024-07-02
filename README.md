@@ -2,7 +2,7 @@
 
 ## What is it?
 
-Today's GPT models have a high token capability, allowing for use cases like long form content creation, extended conversations, and document search and analysis [[1]](https://openai.com/product/gpt-4). Enter GPT Feeder.
+GPT models today have a high token capability, allowing for use cases like long form content creation, extended conversations, and document search and analysis.
 
 GPT Feeder is a command-line application that scans the entire codebase, and produces one string consisting of all filenames and file contents you want to be included. This string can then be fed into ChatGPT, and the model can generate code based on the context of your code base.
 
@@ -35,7 +35,7 @@ gpt-feeder --include *.rs *.md --out output.txt
 gpt-feeder --help
 ```
 
-Note that `gpt-feeder` automatically copies the content to your clipboard.
+✂️ Note that `gpt-feeder` automatically copies the content to your clipboard.
 
 You can now paste this string into ChatGPT, and generate code based on the context of your code base. 🚀
 
