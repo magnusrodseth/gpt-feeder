@@ -46,7 +46,3 @@ GPT Feeder relies on your shell to expand glob patterns. This is done in order t
 ### Example
 
 ![Demo](/static/demo.png)
-
-## Final Notes
-
-For more information on how to contribute and run the application, see [CONTRIBUTING.md](CONTRIBUTING.md).
