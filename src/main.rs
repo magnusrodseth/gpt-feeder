@@ -127,9 +127,6 @@ fn main() -> anyhow::Result<()> {
         std::process::exit(1);
     }
 
-    // Debug print for included files
-    dbg!(&file_paths);
-
     let mut output = String::new();
     let feedignore = feedignore();
 
