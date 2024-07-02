@@ -39,6 +39,10 @@ gpt-feeder --help
 
 You can now paste this string into ChatGPT, and generate code based on the context of your code base. 🚀
 
+### Important to note
+
+GPT Feeder relies on your shell to expand glob patterns. This is done in order to allow your shell to give you autocomplete suggestions on the patterns, in addition to making it easier for the program to handle an arbitrary amount of glob patterns whilst still being user-friendly.
+
 ### Example
 
 ![Demo](/static/demo.png)
