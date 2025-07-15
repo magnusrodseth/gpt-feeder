@@ -46,3 +46,7 @@ GPT Feeder relies on your shell to expand glob patterns. This is done in order t
 ### Example
 
 ![Demo](/static/demo.png)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=magnusrodseth/gpt-feeder&type=Date)](https://www.star-history.com/#magnusrodseth/gpt-feeder&Date)
